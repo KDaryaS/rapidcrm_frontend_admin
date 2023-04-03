@@ -37,9 +37,43 @@
                 </thead>
                 <tbody class="editTableBody">
                     <tr v-for="card in cards" :key="card.id" class="info">
-                        <td class="photo"><img :src=getImgUrl(card.src)></td>
-                        <td class="productName">{{ card.title }}</td>
-                        <td class="price">{{ card.price }}</td>
+                        <!-- <td class="photo"><img :src=getImgUrl(card.src)></td> -->
+                        <td class="photo">
+                            <input type="file" v-if="card.edit"
+                                v-on:change="card.src"
+                                @blur="card.edit = false; $emit('update')"
+                                @keyup.enter="card.edit=false; $emit('update')"
+                                v-focus
+                            >
+                            <div v-else>
+                                <img :src=getImgUrl(card.src) @dblclick="card.edit = true;">
+                            </div>
+                        </td>
+
+                        <td class="productName">
+                            <input  v-if="card.edit"
+                                v-model="card.title"
+                                @blur="card.edit = false; $emit('update')"
+                                @keyup.enter="card.edit=false; $emit('update')"
+                                v-focus
+                            >
+                            <div v-else>
+                                <p @dblclick="card.edit = true;"> {{ card.title }} </p>
+                            </div>
+                        </td>
+
+                        <td class="price">
+                            <input  v-if="card.edit"
+                                v-model="card.price"
+                                @blur="card.edit = false; $emit('update')"
+                                @keyup.enter="card.edit=false; $emit('update')"
+                                v-focus
+                            >
+                            <div v-else>
+                                <p @dblclick="card.edit = true;"> {{ card.price }} </p>
+                            </div>
+                        </td>
+
                         <td class="description">
                             <li v-for="(value, name) in card.description">
                                 <span class='description_key'>{{name }}:</span> {{ value }}

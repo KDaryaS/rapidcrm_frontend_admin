@@ -42,27 +42,94 @@
                 </thead>
                 <tbody class="tableTableBody">
                     <tr v-for="client in information" :key="client.id" class="info">
-                        <td class="name">{{ client.name }}</td>
-                        <td class="email">{{ client.email }}</td>
-                        <td class="telephone">{{ client.telephone }}</td>
-                        <td class="address">{{ client.address }}</td>
+                        <td class="name"> 
+                            <input  v-if="client.edit"
+                                v-model="client.name"
+                                @blur="client.edit = false; $emit('update')"
+                                @keyup.enter="client.edit=false; $emit('update')"
+                                v-focus
+                            >
+                            <div v-else>
+                                <p @dblclick="client.edit = true;"> {{client.name}} </p>
+                            </div>
+                        </td>
+
+
+                        <td class="email">
+                            <input  v-if="client.edit"
+                                v-model="client.email"
+                                @blur="client.edit = false; $emit('update')"
+                                @keyup.enter="client.edit=false; $emit('update')"
+                                v-focus
+                            >
+                            <div v-else>
+                                <p @dblclick="client.edit = true;"> {{ client.email }} </p>
+                            </div>
+                        </td>
+
+                        <td class="telephone">
+                            <input  v-if="client.edit"
+                                v-model="client.telephone"
+                                @blur="client.edit = false; $emit('update')"
+                                @keyup.enter="client.edit=false; $emit('update')"
+                                v-focus
+                            >
+                            <div v-else>
+                                <p @dblclick="client.edit = true;"> {{ client.telephone }} </p>
+                            </div>
+                        </td>
+
+                        <td class="address">
+                            <input  v-if="client.edit"
+                                v-model="client.address"
+                                @blur="client.edit = false; $emit('update')"
+                                @keyup.enter="client.edit=false; $emit('update')"
+                                v-focus
+                            >
+                            <div v-else>
+                                <p @dblclick="client.edit = true;"> {{ client.address }} </p>
+                            </div>
+                        </td>
+
                         <td class="order">
                             <ul v-for="ord in client.order">
-                                <li> {{ ord }}</li>
+                                <li> 
+                                    <input  v-if="client.edit"
+                                        v-model="client.order"
+                                        @blur="client.edit = false; $emit('update')"
+                                        @keyup.enter="client.edit=false; $emit('update')"
+                                        v-focus
+                                    >
+                                    <div v-else>
+                                        <p @dblclick="client.edit = true;"> {{ ord }} </p>
+                                    </div>
+                                </li>
                             </ul>
                         </td>
-                        <td class="comments">{{ client.comments }}</td>
+
+                        <td class="comments">
+                            <input  v-if="client.edit"
+                                v-model="client.comments"
+                                @blur="client.edit = false; $emit('update')"
+                                @keyup.enter="client.edit=false; $emit('update')"
+                                v-focus
+                            >
+                            <div v-else>
+                                <p @dblclick="client.edit = true;"> {{ client.comments }} </p>
+                            </div>
+                        </td>
+
                         <td class="status">
                             <div class="paint">
                                 <ul>
-                                    <li @click="AAA(client.id, 0)" class="submittedForProcessing active">
+                                    <li @click="OrderStatus(client.id, 0)" class="submittedForProcessing active">
                                         Передан на обработку </li>
-                                    <li @click="AAA(client.id, 1)" class="processed">Обрабатывается</li>
-                                    <li @click="AAA(client.id, 2)" class="delivered">Доставляется</li>
-                                    <li @click="AAA(client.id, 3)" class="ready">Готов к получению</li>
-                                    <li @click="AAA(client.id, 4)" class="failedToContact">Не удалось связаться</li>
-                                    <li @click="AAA(client.id, 5)" class="cancelled">Заказ отменен</li>
-                                    <li @click="AAA(client.id, 6)" class="completed">Заказ выполнен</li>
+                                    <li @click="OrderStatus(client.id, 1)" class="processed">Обрабатывается</li>
+                                    <li @click="OrderStatus(client.id, 2)" class="delivered">Доставляется</li>
+                                    <li @click="OrderStatus(client.id, 3)" class="ready">Готов к получению</li>
+                                    <li @click="OrderStatus(client.id, 4)" class="failedToContact">Не удалось связаться</li>
+                                    <li @click="OrderStatus(client.id, 5)" class="cancelled">Заказ отменен</li>
+                                    <li @click="OrderStatus(client.id, 6)" class="completed">Заказ выполнен</li>
                                 </ul>
                                 <img class="close" src="../assets/Close.png">
                             </div>
@@ -80,10 +147,11 @@ export default {
     data () {
         return {
             information: [],
+            editedClient: null,
         }
     },
     methods: {
-        AAA (id, ik) {
+        OrderStatus (id, ik) {
             let liActiveNode = document.querySelectorAll('.paint')[id].querySelector('li.active')
             document.querySelectorAll('.paint')[id].classList.toggle('paint--visible')
             liActiveNode.classList.remove('active')
@@ -91,7 +159,16 @@ export default {
                 document.querySelectorAll('.paint')[id].querySelectorAll('li')[ik].classList.add('active')
             }
         },
-
+        editTodo (client) {
+            this.editedClient = client
+        }
+    },
+    directives: {
+        focus: {
+            inserted (el) {
+                el.focus()
+            }
+        }
     },
     created () {
         this.information = [

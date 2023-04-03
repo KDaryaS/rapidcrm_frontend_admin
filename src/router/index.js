@@ -5,6 +5,8 @@ import Menu from '../views/Menu.vue'
 import AboutUs from '../views/AboutUs.vue'
 import PhotoGallery from '../views/PhotoGallery.vue'
 import Orders from '../views/Orders.vue'
+import Statistics from '../views/Statistics.vue'
+
 
 import MenuChanges from '../views/MenuChanges.vue'
 import SideMenuChanges from '../components/SideMenuChanges.vue'
@@ -50,6 +52,11 @@ let routes = [
         path: '/orders',
         name: 'Orders',
         component: Orders
+    },
+    {
+        path: '/statistics',
+        name: 'Statistics',
+        component: Statistics
     }
 ]
 
