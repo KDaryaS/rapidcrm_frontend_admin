@@ -5,15 +5,26 @@
             <table class="userList_userTable">
                 <thead class="userList_userTableHead">
                     <tr>
-                        <th>Имя</th>
-                        <th>Фамилия</th>
-                        <th>Email</th>
-                        <th>Номер телефона</th>
+                        <th @click="sortByName">
+                            Имя
+                            <i class="sorting">#</i>
+                        </th>
+                        <th @click="sortBySurname">
+                            Фамилия
+                            <i class="sorting">#</i></th>
+                        <th @click="sortByEmail">
+                            Email
+                            <i class="sorting">#</i>
+                        </th>
+                        <th @click="sortByPhone">
+                            Номер телефона
+                            <i class="sorting">#</i>
+                        </th>
                         <th>Удалить</th>
                     </tr>
                 </thead>
                 <tbody class="userList_userTableBody">
-                    <tr class="userList_info" v-for="user in users" :key="user.id">
+                    <tr class="userList_info" v-for="user in paginatedUsers" :key="user.id">
                         <td>{{ user.firstName }}</td>
                         <td>{{ user.lastName }}</td>
                         <td>{{ user.email }}</td>
@@ -24,6 +35,15 @@
                     </tr>
                 </tbody>
             </table>
+            <div class="pagination">
+                <div class="page" 
+                    v-for="page in pages" 
+                    :key="page" 
+                    @click="pageClick(page)"
+                    :class="{'page_selected': page === pageNumber}">
+                    {{ page }}
+                </div>
+            </div>
         </div>
     </div>
 </template>
@@ -32,99 +52,64 @@
 export default {
     name: 'Statistics',
     data () {
-        return {users: null}
+        return {
+            users: null,
+            usersPerPages: 5,
+            pageNumber: 1,
+        }
+    },
+    computed: {
+        pages() {
+            return Math.ceil(this.$store.getters.USERS.length / 5)
+        },
+        paginatedUsers () {
+            let from = (this.pageNumber - 1) * this.usersPerPages;
+            let to = from + this.usersPerPages;
+            return (this.$store.getters.USERS.slice(from, to))
+        },
     },
     methods: {
-        getData () {
-            this.axios.get('http://192.168.31.74:8082/api/users')
-                .then((result) => {
-                    this.users = result.data
-                })
-                .catch((err) => console.log(err))
-        },
+        // getData () {
+        //     this.axios.get('http://192.168.31.74:8082/api/users')
+        //         .then((result) => {
+        //             this.users = result.data
+        //         })
+        //         .catch((err) => console.log(err))
+        // },
         deleteUser(id, firstName, lastName) {
             let confirmation = confirm(`Вы уверены, что хотите удалить пользователя по имени: ${firstName} ${lastName}?`)
             if (confirmation) {
                 this.axios.delete(`http://192.168.31.74:8082/api/users/delete?id=${id}`)
                     .then(() => {
-                        this.getData()
+                        // this.getData()
+                        this.$store.dispatch('GET_USERS_FROM_API')
                     })
                     .catch((err) => console.log(err))
             } else {return}     
+        },
+        pageClick (page) {
+            this.pageNumber = page
+        },
+        sortByName() {
+            this.$store.getters.USERS.sort((a, b) => a.firstName.localeCompare(b.firstName))
+        },
+        sortBySurname() {
+            this.$store.getters.USERS.sort((a, b) => a.lastName.localeCompare(b.lastName))
+        },
+        sortByEmail() {
+            this.$store.getters.USERS.sort((a, b) => a.email.localeCompare(b.email))
+        },
+        sortByPhone() {
+            this.$store.getters.USERS.sort((a, b) => a.phone - b.phone)
         }
     },
-    mounted() {
-        this.getData()
+    // mounted() {
+    //     this.getData()
+    // }
+    created() {
+        this.$store.dispatch('GET_USERS_FROM_API')
     }
 }
-
-
-// export default {
-//     name: 'Statistics',
-//     data () {
-//         return {
-//             requestURL: 'http://192.168.31.74:8082/api/users',
-//             xhr: new XMLHttpRequest()
-//         }
-//     },
-//     methods: {
-//         sendRequest (method, url) {
-//             return new Promise((resolve, reject) => {
-//                 this.xhr.open(method, url)
-//                 this.xhr.responseType='json'
-//                 this.xhr.setRequestHeader('Content-Type', 'application/json')
-//                 this.xhr.onload = () => {
-//                     if(this.xhr.status>=400) {
-//                         reject(this.xhr.response)
-//                     } else {
-//                         resolve(this.xhr.response)
-//                     }
-//                 }
-//                 this.xhr.onerror = () => {
-//                     reject(this.xhr.response)
-//                 }
-//                 this.xhr.send()
-//             })
-//         },
-//         showUsers () {
-//             this.sendRequest ('GET', this.requestURL)
-//                 .then(info => {
-//                     let userTableBody = document.querySelector('tbody');
-//                     for(let user of info) {
-//                         let row = document.createElement('tr');
-//                         row.className = 'userList_info';
-//                         let td_0 = document.createElement('td');
-//                         td_0.innerHTML = user.firstName;
-//                         let td_1 = document.createElement('td');
-//                         td_1.innerHTML = user.lastName;
-//                         let td_2 = document.createElement('td');
-//                         td_2.innerHTML = user.email;
-//                         let td_3 = document.createElement('td');
-//                         td_3.innerHTML = user.phone;
-//                         let td_4 = document.createElement('td');
-//                         td_4.innerHTML = '/';
-//                         };
-
-//                         row.appendChild(td_0);
-//                         row.appendChild(td_1);
-//                         row.appendChild(td_2);
-//                         row.appendChild(td_3);
-//                         row.appendChild(td_4);
-                        
-//                         userTableBody.appendChild(row)
-//                     }
-//                 })
-//                 .catch(err => console.log(err))
-//         },
-//     },
-//     mounted() {
-//         if (document.querySelectorAll('tr').length <= 1) {
-//             this.showUsers ()
-//         } else {
-//             return
-//         }
-//     }
-// }
 </script>
 
 <style scoped> 
@@ -192,5 +177,25 @@ export default {
     font-weight: 400;
     line-height: 158%;
     color: #FFFFFF;
+}
+
+.pagination {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    margin-top: 15px;
+    margin-right: 380px;
+}
+.page  {
+    padding-right: 10px;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 25px;
+    font-weight: 600;
+    line-height: 158%;
+    color: #FFEBCD;
+    cursor: pointer;
+}
+.page_selected {
+    color: #948167;
 }
 </style>
